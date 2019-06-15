@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+    <div class="col-4">
+        <h3>Sélectionner un RIB</h3>
+        <select id="rib" name="rib">
+            <option value="" disabled selected>Choisissez votre RIB</option>
+            {% for key,datum in data %}
+                <option class="select_rib" value="{{ key }}">RIB N°{{ key }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-4">
+        <h3>A partir du :</h3>
+        <input type="date" id="start_date" name="start_date" value="">
+    </div>
+    <div class="col-4">
+        <h3>Jusqu'au : </h3>
+        <input type="date" id="end_date" name="end_date" value="">
+    </div>
+    <div>
+        <button id="submit_button" type="submit" data-url="{{ path('operations') }}">O.K.</button>
+    </div>
+
+    {% include ('api/operations.html.twig') %}
+
+{% endblock %}

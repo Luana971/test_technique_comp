@@ -1,0 +1,8 @@
+index:
+    path: /
+    controller: App\Controller\SiteController::index
+
+operations:
+    path: /operationsList
+    controller: App\Controller\ApiController::operationsList
+    methods: [post]
