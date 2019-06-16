@@ -112,7 +112,7 @@ class ApiController extends AbstractController
 
     public function operationsList(Request $request)
     {
-        $operations = $this->getNeededOperations($request);
+        $operations = (array)$this->getNeededOperations($request);
         uksort($operations, array($this, "sortByDate"));
 
         foreach ($operations as $key => $operation) {
@@ -125,7 +125,7 @@ class ApiController extends AbstractController
                 $operations[$key][$libelle]['recette'] = $revenue;
 
                 if ($transaction['montant'] < 0) {
-                    $expense = $transaction['montant'];
+                    $expense = trim($transaction['montant'], '-');
                 } else {
                     $expense = 0;
                 }

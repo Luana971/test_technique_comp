@@ -3,28 +3,43 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
-    <div class="col-4">
-        <h3>Sélectionner un RIB</h3>
-        <select id="rib" name="rib">
-            <option value="" disabled selected>Choisissez votre RIB</option>
-            {% for key,datum in data %}
-                <option class="select_rib" value="{{ key }}">RIB N°{{ key }}</option>
-            {% endfor %}
-        </select>
+    <div id="title" class="row">
+        <div class="col-12 text-center">
+            <h1>Consulter mes opérations</h1>
+        </div>
     </div>
-    <div class="col-4">
-        <h3>A partir du :</h3>
-        <input type="date" id="start_date" name="start_date" value="">
+    <div class="row">
+        <div class="col-md-4 col-12">
+            <h3>Sélectionner un RIB</h3>
+            <div class="input-group mb-3">
+                <select id="rib" name="rib" class="custom-select">
+                    <option value="" disabled selected>Choisissez votre RIB</option>
+                    {% for key,datum in data %}
+                        <option class="select_rib" value="{{ key }}">RIB N°{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <h3>A partir du :</h3>
+            <div class="input-group mb-3">
+                <input type="date" id="start_date" name="start_date" value="" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+            </div>
+        </div>
+        <div class="col-md-4 col-12">
+            <h3>Jusqu'au : </h3>
+            <div class="input-group mb-3">
+                <input type="date" id="end_date" name="end_date" value="" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+            </div>
+        </div>
     </div>
-    <div class="col-4">
-        <h3>Jusqu'au : </h3>
-        <input type="date" id="end_date" name="end_date" value="">
-    </div>
-    <div>
-        <button id="submit_list_button" class="submit_button" type="submit" data-url="{{ path('operationsList') }}">Liste des opérations</button>
-    </div>
-    <div>
-        <button id="submit_total_button" class="submit_button" type="submit" data-url="{{ path('operationsTotal') }}">Solde total</button>
+    <div class="row">
+        <div class="col-md-6 col-12">
+            <button id="submit_list_button" type="button" class="btn btn-secondary btn-lg btn-block" data-url="{{ path('operationsList') }}">Liste des opérations</button>
+        </div>
+        <div class="col-md-6 col-12">
+            <button id="submit_total_button" type="button" class="btn btn-secondary btn-lg btn-block" data-url="{{ path('operationsTotal') }}">Solde total</button>
+        </div>
     </div>
 
     {% include ('api/operations.html.twig') %}

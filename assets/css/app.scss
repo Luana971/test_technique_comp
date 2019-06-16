@@ -1,0 +1,36 @@
+@import "~bootstrap/scss/bootstrap";
+
+
+body {
+  .row {
+    margin-bottom: 50px;
+  }
+
+  select, input {
+    width: 100%;
+  }
+
+  span {
+    font-size: 40px;
+  }
+
+  #operations_total {
+    border-top: grey 1px solid;
+  }
+
+  #operations_total_result {
+    font-weight: bold;
+  }
+
+  #title {
+    margin-top: 100px;
+  }
+
+  #operations_list {
+    display: none;
+  }
+
+  #operations_total {
+    display: none;
+  }
+}

@@ -1,5 +1,6 @@
-require('../css/app.css');
+require('../css/app.scss');
 var $ = require('jquery');
+require('bootstrap');
 
 function getResults(list, url) {
     let rib = $('#rib').children("option:selected").val();
@@ -19,18 +20,44 @@ function getResults(list, url) {
         url: url,
         data: {rib: rib, startDate: startDate, endDate: endDate},
         dataType: "html",
-    }).done( function(response) {
-        // alert(123);
-        //var htmlToDisplay = response.trim();
-        console.log(response);
-        if (list == 1) {
-            $("#operations_list").html(response);
-        } else {
-            $("#operations_total").html(response);
+        success: function (results) {
+            if (list === 1) {
+                $("#operations_total").hide();
+                $("#list_table").find('tbody').empty();
+                $.each(JSON.parse(results), function (k, result) {
+                    $.each(result, function (libelle, operation) {
+                        $("#operations_list").show();
+                        $("#list_table").find('tbody')
+                            .append($('<tr>')
+                                .append($('<td>')
+                                    .text(operation['date'])
+                                )
+                                .append($('<td>')
+                                    .text(libelle)
+                                )
+                                .append($('<td>')
+                                    .text(operation['recette'] + ' €')
+                                )
+                                .append($('<td>')
+                                    .text(operation['depense'] + ' €')
+                                )
+                            );
+                    })
+                });
+            } else {
+                $("#operations_list").hide();
+                $("#operations_total").show();
+                if (results < 0) {
+                    $("#operations_total_result").html(results + ' €').css('color', 'red');
+                } else {
+                    $("#operations_total_result").html(results + ' €').css('color', 'green');
+                }
+            }
+        },
+        error: function (jxh, textmsg, errorThrown) {
+            console.log(textmsg);
+            console.log(errorThrown);
         }
-    }).fail(function(jxh,textmsg,errorThrown){
-        console.log(textmsg);
-        console.log(errorThrown);
     });
 }
 
