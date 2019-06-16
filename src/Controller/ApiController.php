@@ -41,7 +41,7 @@ class ApiController extends AbstractController
         return $allOperations;
     }
 
-    public function operationsList(Request $request)
+    public function getNeededOperations(Request $request)
     {
         $results = array();
         if ($request->isXmlHttpRequest()) {
@@ -70,20 +70,29 @@ class ApiController extends AbstractController
                     if (is_int($startDate)) {
                         if ($endDate) {
                             if ($date >= $startDate && $date <= $endDate) {
-                                $results[$operation['date']][$key] = $operation['montant'];
+                                $results[$date][$key] = array(
+                                    'montant' => $operation['montant'],
+                                    'date' => $operation['date'],
+                                );
                             }
                         } else {
                             if ($date >= $startDate) {
-                                $results[$operation['date']][$key] = $operation['montant'];
+                                $results[$date][$key] = array(
+                                    'montant' => $operation['montant'],
+                                    'date' => $operation['date'],
+                                );
                             }
                         }
                     } elseif (is_int($endDate)) {
                         if ($date <= $endDate) {
-                            $results[$operation['date']][$key] = $operation['montant'];
+                            $results[$date][$key] = array(
+                                'montant' => $operation['montant'],
+                                'date' => $operation['date'],
+                            );
                         }
                     }
 
-                    $response = new Response(json_encode($results));
+                    $response = $results;
                 }
             } else {
                 $response = new Response('Veuillez sélectionner un RIB.');
@@ -94,5 +103,36 @@ class ApiController extends AbstractController
         }
 
         return $response;
+    }
+
+    public function sortByDate($a, $b)
+    {
+        return $b - $a;
+    }
+
+    public function operationsList(Request $request)
+    {
+        $operations = $this->getNeededOperations($request);
+        uksort($operations, array($this, "sortByDate"));
+
+        foreach ($operations as $key => $operation) {
+            foreach ($operation as $libelle => $transaction) {
+                if ($transaction['montant'] > 0) {
+                    $revenue = $transaction['montant'];
+                } else {
+                    $revenue = 0;
+                }
+                $operations[$key][$libelle]['recette'] = $revenue;
+
+                if ($transaction['montant'] < 0) {
+                    $expense = $transaction['montant'];
+                } else {
+                    $expense = 0;
+                }
+                $operations[$key][$libelle]['depense'] = $expense;
+            }
+        }
+
+        return new Response(json_encode($operations));
     }
 }
