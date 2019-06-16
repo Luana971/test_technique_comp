@@ -22,11 +22,16 @@ function getResults(list, url) {
         dataType: "html",
         success: function (response) {
             let results = jQuery.parseJSON(response);
+            /* if results isn't of these two types it means there was an error */
             if (typeof results === "object" || typeof results === 'number') {
+
+                /* if the method called returns operations list */
                 if (list === 1) {
                     $("#operations_total").hide();
                     $(".error").hide();
                     $("#list_table").find('tbody').empty();
+
+                    /* loop through results to add a table row for each operation */
                     $.each(results, function (k, result) {
                         $.each(result, function (libelle, operation) {
                             $("#operations_list").show();
@@ -47,6 +52,7 @@ function getResults(list, url) {
                                 );
                         })
                     });
+                /* if the method called returns operations total */
                 } else {
                     $("#operations_list").hide();
                     $(".error").hide();
@@ -57,6 +63,7 @@ function getResults(list, url) {
                         $("#operations_total_result").html(results + ' €').css('color', 'green');
                     }
                 }
+            /* if there was an error */
             } else {
                 $("#operations_list").hide();
                 $("#operations_total").hide();

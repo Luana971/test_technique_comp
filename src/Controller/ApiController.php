@@ -25,8 +25,11 @@ class ApiController extends AbstractController
 
     public function getAllOperationsFromApi()
     {
+        /* get all JSON from API url */
         $allOperations = array();
         $data = $this->getApiData();
+
+        /* store every operations in associative array */
         foreach ($data as $key => $datum) {
             if ($key !== 'statut') {
                 foreach ($datum as $operation) {
@@ -41,6 +44,7 @@ class ApiController extends AbstractController
         return $allOperations;
     }
 
+    /* get operations for asked rib and period */
     public function getNeededOperations(Request $request)
     {
         $results = array();
@@ -65,6 +69,10 @@ class ApiController extends AbstractController
                 if ($startDate > $endDate || $endDate < $startDate) {
                     $response = 'Veuillez sélectionner une période valide.';
                 } else {
+                    /*
+                     * create a new associative array that only contains the operations of the rib that has been asked
+                     * use the date timeswamp as an array key to facilitate chronological handling
+                     */
                     foreach ($allOperations[$rib] as $key => $operation) {
                         $date = str_replace('/', '-', $operation['date'] );
                         $date = new \DateTime($date);
@@ -101,6 +109,7 @@ class ApiController extends AbstractController
                         }
                     }
 
+                    /* return help messages if error */
                     if (empty($results)) {
                         $response = 'Aucune opération réalisée sur cette période.';
                     } else {
@@ -126,10 +135,14 @@ class ApiController extends AbstractController
     public function operationsList(Request $request)
     {
         $operations = $this->getNeededOperations($request);
+
+        /* if $operations is a sting it means there was an error */
         if (!is_string($operations)) {
             uksort($operations, array($this, "sortByDate"));
 
             foreach ($operations as $key => $operation) {
+
+                /* add the revenue and expense fields to each operation */
                 foreach ($operation as $libelle => $transaction) {
                     if ($transaction['montant'] > 0) {
                         $revenue = $transaction['montant'];
@@ -155,6 +168,7 @@ class ApiController extends AbstractController
     {
         $operations = $this->getNeededOperations($request);
 
+        /* if $operations is a sting it means there was an error */
         if (!is_string($operations)) {
             $total = 0;
 
