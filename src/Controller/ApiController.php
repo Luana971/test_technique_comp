@@ -135,4 +135,19 @@ class ApiController extends AbstractController
 
         return new Response(json_encode($operations));
     }
+
+    public function operationsTotal(Request $request)
+    {
+        $operations = $this->getNeededOperations($request);
+        $total = 0;
+
+        foreach ($operations as $operation) {
+            foreach ($operation as $transaction) {
+                $amount = (float)str_replace(',', '.', $transaction['montant']);
+                $total += $amount;
+            }
+        }
+
+        return new Response($total);
+    }
 }

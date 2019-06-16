@@ -21,7 +21,10 @@
         <input type="date" id="end_date" name="end_date" value="">
     </div>
     <div>
-        <button id="submit_button" type="submit" data-url="{{ path('operations') }}">O.K.</button>
+        <button id="submit_list_button" class="submit_button" type="submit" data-url="{{ path('operationsList') }}">Liste des opérations</button>
+    </div>
+    <div>
+        <button id="submit_total_button" class="submit_button" type="submit" data-url="{{ path('operationsTotal') }}">Solde total</button>
     </div>
 
     {% include ('api/operations.html.twig') %}

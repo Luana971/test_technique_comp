@@ -2,7 +2,12 @@ index:
     path: /
     controller: App\Controller\SiteController::index
 
-operations:
+operationsList:
     path: /operationsList
     controller: App\Controller\ApiController::operationsList
+    methods: [post]
+
+operationsTotal:
+    path: /operationsTotal
+    controller: App\Controller\ApiController::operationsTotal
     methods: [post]
