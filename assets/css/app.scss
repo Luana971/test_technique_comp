@@ -26,11 +26,15 @@ body {
     margin-top: 100px;
   }
 
-  #operations_list {
+  #operations_list, #operations_total {
     display: none;
   }
 
-  #operations_total {
+  .error {
     display: none;
+    border-top: red 1px solid;
+    #error_message {
+      color : red;
+    }
   }
 }

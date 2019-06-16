@@ -62,29 +62,38 @@ class ApiController extends AbstractController
             $allOperations = $this->getAllOperationsFromApi();
 
             if ($rib) {
-                foreach ($allOperations[$rib] as $key => $operation) {
-                    $date = str_replace('/', '-', $operation['date'] );
-                    $date = new \DateTime($date);
-                    $date = $date->getTimestamp();
+                if ($startDate > $endDate || $endDate < $startDate) {
+                    $response = 'Veuillez sélectionner une période valide.';
+                } else {
+                    foreach ($allOperations[$rib] as $key => $operation) {
+                        $date = str_replace('/', '-', $operation['date'] );
+                        $date = new \DateTime($date);
+                        $date = $date->getTimestamp();
 
-                    if (is_int($startDate)) {
-                        if ($endDate) {
-                            if ($date >= $startDate && $date <= $endDate) {
+                        if (is_int($startDate)) {
+                            if ($endDate) {
+                                if ($date >= $startDate && $date <= $endDate) {
+                                    $results[$date][$key] = array(
+                                        'montant' => $operation['montant'],
+                                        'date' => $operation['date'],
+                                    );
+                                }
+                            } else {
+                                if ($date >= $startDate) {
+                                    $results[$date][$key] = array(
+                                        'montant' => $operation['montant'],
+                                        'date' => $operation['date'],
+                                    );
+                                }
+                            }
+                        } elseif (is_int($endDate)) {
+                            if ($date <= $endDate) {
                                 $results[$date][$key] = array(
                                     'montant' => $operation['montant'],
                                     'date' => $operation['date'],
                                 );
                             }
                         } else {
-                            if ($date >= $startDate) {
-                                $results[$date][$key] = array(
-                                    'montant' => $operation['montant'],
-                                    'date' => $operation['date'],
-                                );
-                            }
-                        }
-                    } elseif (is_int($endDate)) {
-                        if ($date <= $endDate) {
                             $results[$date][$key] = array(
                                 'montant' => $operation['montant'],
                                 'date' => $operation['date'],
@@ -92,14 +101,18 @@ class ApiController extends AbstractController
                         }
                     }
 
-                    $response = $results;
+                    if (empty($results)) {
+                        $response = 'Aucune opération réalisée sur cette période.';
+                    } else {
+                        $response = $results;
+                    }
                 }
             } else {
-                $response = new Response('Veuillez sélectionner un RIB.');
+                $response = 'Veuillez sélectionner un RIB.';
             }
 
         } else {
-            $response = new Response('Une erreur s\'est produite, veuillez réessayer.');
+            $response = 'Une erreur s\'est produite, veuillez réessayer.';
         }
 
         return $response;
@@ -112,24 +125,26 @@ class ApiController extends AbstractController
 
     public function operationsList(Request $request)
     {
-        $operations = (array)$this->getNeededOperations($request);
-        uksort($operations, array($this, "sortByDate"));
+        $operations = $this->getNeededOperations($request);
+        if (!is_string($operations)) {
+            uksort($operations, array($this, "sortByDate"));
 
-        foreach ($operations as $key => $operation) {
-            foreach ($operation as $libelle => $transaction) {
-                if ($transaction['montant'] > 0) {
-                    $revenue = $transaction['montant'];
-                } else {
-                    $revenue = 0;
-                }
-                $operations[$key][$libelle]['recette'] = $revenue;
+            foreach ($operations as $key => $operation) {
+                foreach ($operation as $libelle => $transaction) {
+                    if ($transaction['montant'] > 0) {
+                        $revenue = $transaction['montant'];
+                    } else {
+                        $revenue = 0;
+                    }
+                    $operations[$key][$libelle]['recette'] = $revenue;
 
-                if ($transaction['montant'] < 0) {
-                    $expense = trim($transaction['montant'], '-');
-                } else {
-                    $expense = 0;
+                    if ($transaction['montant'] < 0) {
+                        $expense = trim($transaction['montant'], '-');
+                    } else {
+                        $expense = 0;
+                    }
+                    $operations[$key][$libelle]['depense'] = $expense;
                 }
-                $operations[$key][$libelle]['depense'] = $expense;
             }
         }
 
@@ -139,15 +154,20 @@ class ApiController extends AbstractController
     public function operationsTotal(Request $request)
     {
         $operations = $this->getNeededOperations($request);
-        $total = 0;
 
-        foreach ($operations as $operation) {
-            foreach ($operation as $transaction) {
-                $amount = (float)str_replace(',', '.', $transaction['montant']);
-                $total += $amount;
+        if (!is_string($operations)) {
+            $total = 0;
+
+            foreach ($operations as $operation) {
+                foreach ($operation as $transaction) {
+                    $amount = (float)str_replace(',', '.', $transaction['montant']);
+                    $total += $amount;
+                }
             }
+
+            return new Response($total);
         }
 
-        return new Response($total);
+        return new Response(json_encode($operations));
     }
 }
